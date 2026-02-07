@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="myproject.css">
+    <title>Iiya cliccker!!!</title>
+</head>
+<body>
+
+   <div id = "header">Ilya cliccker! <button onclick="loginWithGoogle()">Войти через Google</button>
+</div>
+
+   <div id = "text1">made by QREMB</div>
+
+   <div id = "content">
+
+    <div id="money">Money : <span id="moneyvalue">0</span></div>
+    <button class="fg" onclick="onclickbutton(this)">
+
+        <img src="images/krasav4ik.jpeg" alt="тут должен быть красавчик но его нет(">
+
+    </button>
+    <div id="kg">KG : <span id="kgvalue">0</span></div>
+    <button id="sellfat">продать жир</button>
+   </div>
+
+
+   <div id = "sidebarleft">
+    <div class="shop-title">Shop</div>
+    <button class = "block" id = "salad">
+        <span>Салат для похудения</span><br>
+        <span>+2 kg</span><br>
+        <span id="priceeat">$ 1000</span>
+    </button>
+
+    <button class = "block" id = "pizza">
+        <span>Pizzaa</span><br>
+        <span>+5 kg</span><br>
+        <span id="priceeat">$ 10000</span>
+    </button>
+
+    <button class = "block" id = "burger">
+        <span>Burger</span><br>
+        <span>+10 kg</span><br>
+        <span id="priceeat">$ 50000</span>
+    </button>
+
+    <button class = "block" id = "betonomeshalka">
+        <span>Уран</span><br>
+        <span>+100 kg</span><br>
+        <span id="priceeat">$ 200000</span>
+    </button>
+
+    <button class = "block" id = "medovik">
+        <span>😍Медовик😍</span><br>
+        <span>+250 kg</span><br>
+        <span id="priceeat">$ 999999</span></button>
+
+   </div>
+
+    <div id = "rebirth">
+        <span id="textrebirth">Для продажи жира чтобы быстрее фармить новый нужно</span>
+        <progress id="progressbar" value="0" max="100"></progress>
+        <button id="sellfat">Перепождение Ильи</button>
+        <span id="textlevel">Текущий уровень: <span id="level">0</span></span>
+    </div>
+    <div id="lederboard">
+        <h2>Leaderboard</h2>
+        <ol id="leaderboard-list">
+            будет в следующем обновлении :)
+        </ol>
+    </div>
+     
+
+   <div id = "footer">project version  beta .2026.02.03</div>
+
+
+    <script type="module" src="firebase.js"></script>
+ <script src="myproject.js"></script>   
+</body>
+</html>
