@@ -32,6 +32,7 @@ function onclickbutton() {
 
     kg += totalClick;
     updateUI();
+    if (window.saveProgress) window.saveProgress();
 }
 
 // ===== ПРОДАЖА ЖИРА =====
@@ -39,25 +40,53 @@ document.querySelectorAll("#sellfat")[0].onclick = () => {
     money += kg * 10;
     kg = 0;
     updateUI();
+    if (window.saveProgress) window.saveProgress();
 };
 
 // ===== МАГАЗИН =====
-function buyItem(price, bonus) {
+const btn = document.getElementById("salad");
+
+btn.addEventListener("click", function handler() {
+    btn.disabled = true;
+    btn.innerText = "куплено";
+    btn.removeEventListener("click", handler);
+});
+
+
+function buyItem(buttonId, price, bonus) {
+    const btn = document.getElementById(buttonId);
+
+    if (btn.disabled) return; // защита
+
     if (money >= price) {
         money -= price;
         bonusKgPerClick += bonus;
+
+        btn.disabled = true;
+        btn.innerText = "куплено";
+
         updateUI();
+        if (window.saveProgress) window.saveProgress();
     } else {
         alert("Недостаточно денег");
     }
 }
 
 // кнопки магазина
-document.getElementById("salad").onclick = () => buyItem(1000, 2);
-document.getElementById("pizza").onclick = () => buyItem(10000, 5);
-document.getElementById("burger").onclick = () => buyItem(50000, 10);
-document.getElementById("betonomeshalka").onclick = () => buyItem(200000, 100);
-document.getElementById("medovik").onclick = () => buyItem(999999, 250);
+document.getElementById("salad").onclick = () =>
+    buyItem("salad", 1000, 2);
+
+document.getElementById("pizza").onclick = () =>
+    buyItem("pizza", 10000, 5);
+
+document.getElementById("burger").onclick = () =>
+    buyItem("burger", 50000, 10);
+
+document.getElementById("betonomeshalka").onclick = () =>
+    buyItem("betonomeshalka", 200000, 100);
+
+document.getElementById("medovik").onclick = () =>
+    buyItem("medovik", 999999, 250);
 
 // ===== ПЕРЕРОЖДЕНИЕ =====
 document.querySelectorAll("#sellfat")[1].onclick = () => {
@@ -73,6 +102,7 @@ document.querySelectorAll("#sellfat")[1].onclick = () => {
 
         alert(`Перерождение! Теперь x${rebirthMultiplier} к клику`);
         updateUI();
+        if (window.saveProgress) window.saveProgress();
     } else {
         alert(`Нужно ${rebirthCost} KG`);
     }
