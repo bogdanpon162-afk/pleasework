@@ -1,13 +1,14 @@
 // ===== ОСНОВНЫЕ ПЕРЕМЕННЫЕ =====
-let kg = 0;
-let money = 0;
+// Используем window свойства чтобы Firebase мог их видеть и сохранять
+window.kg = 0;
+window.money = 0;
 
-let baseKgPerClick = 1;
-let bonusKgPerClick = 0;
-let rebirthMultiplier = 1;
+window.baseKgPerClick = 1;
+window.bonusKgPerClick = 0;
+window.rebirthMultiplier = 1;
 
-let rebirthLevel = 0;
-let rebirthCost = 10000;
+window.rebirthLevel = 0;
+window.rebirthCost = 10000;
 
 // ===== DOM =====
 const kgValue = document.getElementById("kgvalue");
@@ -16,30 +17,30 @@ const levelValue = document.getElementById("level");
 const progressBar = document.getElementById("progressbar");
 
 // ===== ОБНОВЛЕНИЕ ЭКРАНА =====
-function updateUI() {
-    kgValue.textContent = Math.floor(kg);
-    moneyValue.textContent = Math.floor(money);
-    levelValue.textContent = rebirthLevel;
+window.updateUI = function() {
+    kgValue.textContent = Math.floor(window.kg);
+    moneyValue.textContent = Math.floor(window.money);
+    levelValue.textContent = window.rebirthLevel;
 
-    progressBar.max = rebirthCost;
-    progressBar.value = Math.min(kg, rebirthCost);
+    progressBar.max = window.rebirthCost;
+    progressBar.value = Math.min(window.kg, window.rebirthCost);
 }
 
 // ===== КЛИК ПО КАРТИНКЕ =====
 function onclickbutton() {
     let totalClick =
-        (baseKgPerClick + bonusKgPerClick) * rebirthMultiplier;
+        (window.baseKgPerClick + window.bonusKgPerClick) * window.rebirthMultiplier;
 
-    kg += totalClick;
-    updateUI();
+    window.kg += totalClick;
+    window.updateUI();
     if (window.saveProgress) window.saveProgress();
 }
 
 // ===== ПРОДАЖА ЖИРА =====
 document.querySelectorAll("#sellfat")[0].onclick = () => {
-    money += kg * 10;
-    kg = 0;
-    updateUI();
+    window.money += window.kg * 10;
+    window.kg = 0;
+    window.updateUI();
     if (window.saveProgress) window.saveProgress();
 };
 
@@ -56,21 +57,29 @@ btn.addEventListener("click", function handler() {
 function buyItem(buttonId, price, bonus) {
     const btn = document.getElementById(buttonId);
 
-    if (btn.disabled) return; // защита
+    if (btn.disabled) return;
 
-    if (money >= price) {
-        money -= price;
-        bonusKgPerClick += bonus;
+    if (window.money >= price) {
+        window.money -= price;
+        window.bonusKgPerClick += bonus;
 
         btn.disabled = true;
         btn.innerText = "куплено";
 
-        updateUI();
+        window.updateUI();
         if (window.saveProgress) window.saveProgress();
     } else {
         alert("Недостаточно денег");
     }
 }
+
+const shopItems = [
+    { id: "salad", price: 1000, bonus: 2 },
+    { id: "pizza",  price: 10000, bonus: 5 },
+    { id: "burger",  price: 50000, bonus: 10 },
+    { id: "betonomeshalka",  price: 200000, bonus: 100 },
+    { id: "medovik", price: 999999, bonus: 250 }
+];
 
 // кнопки магазина
 document.getElementById("salad").onclick = () =>
@@ -90,22 +99,39 @@ document.getElementById("medovik").onclick = () =>
 
 // ===== ПЕРЕРОЖДЕНИЕ =====
 document.querySelectorAll("#sellfat")[1].onclick = () => {
-    if (kg >= rebirthCost) {
-        rebirthLevel++;
-        rebirthMultiplier++;
+    if (window.kg >= window.rebirthCost) {
+        window.rebirthLevel++;
+        window.rebirthMultiplier++;
 
-        kg = 0;
-        money = 0;
-        bonusKgPerClick = 0;
+        window.kg = 0;
+        window.money = 0;
+        window.bonusKgPerClick = 0;
 
-        rebirthCost *= 10;
+        window.rebirthCost *= 10;
 
-        alert(`Перерождение! Теперь x${rebirthMultiplier} к клику`);
-        updateUI();
+        resetShopButtons();
+
+        alert(`Перерождение! Теперь x${window.rebirthMultiplier} к клику`);
+        window.updateUI();
         if (window.saveProgress) window.saveProgress();
     } else {
-        alert(`Нужно ${rebirthCost} KG`);
+        alert(`Нужно ${window.rebirthCost} KG`);
     }
 };
+function resetShopButtons() {
+    shopItems.forEach(item => {
+        const btn = document.getElementById(item.id);
+        btn.disabled = false;
+        btn.innerText = item.text;
+    });
+}
 
-updateUI();
+// Инициализируем UI при загрузке
+window.updateUI();
+
+// Автоматическое сохранение прогресса каждые 30 секунд
+setInterval(() => {
+    if (window.saveProgress) {
+        window.saveProgress();
+    }
+}, 30000);
