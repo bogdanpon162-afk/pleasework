@@ -3,7 +3,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -31,28 +32,47 @@ const provider = new GoogleAuthProvider();
 
 // ===== ВХОД ЧЕРЕЗ GOOGLE =====
 window.loginWithGoogle = async function () {
-  const result = await signInWithPopup(auth, provider);
-  const user = result.user;
-
-  // при первом входе создаём/обновляем профиль без перезаписи прогресса
-  await setDoc(
-    doc(db, "users", user.uid),
-    {
-      name: user.displayName,
-      photo: user.photoURL,
-      updated: Date.now(),
-    },
-    { merge: true }
-  );
-
-  alert(`Ты вошёл как ${user.displayName}`);
+  try {
+    await signInWithRedirect(auth, provider);
+  } catch (error) {
+    console.error("Ошибка при входе:", error);
+    alert("Ошибка при входе: " + error.message);
+  }
 };
+
+// Обработка результата редиректа при загрузке страницы
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (result && result.user) {
+      const user = result.user;
+      
+      // при входе создаём/обновляем профиль без перезаписи прогресса
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          name: user.displayName,
+          photo: user.photoURL,
+          updated: Date.now(),
+        },
+        { merge: true }
+      );
+
+      alert(`Ты вошёл как ${user.displayName}`);
+    }
+  })
+  .catch((error) => {
+    console.error("Ошибка при обработке входа:", error);
+  });
 
 // Сохраняет прогресс текущего игрока (merge: true)
 window.saveProgress = async function () {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    console.log("Не авторизован - прогресс не сохраняется");
+    return;
+  }
   try {
+    console.log("💾 Сохраняю прогресс...");
     await setDoc(
       doc(db, "users", user.uid),
       {
@@ -67,18 +87,27 @@ window.saveProgress = async function () {
       },
       { merge: true }
     );
+    console.log("✅ Прогресс сохранён!");
   } catch (e) {
-    console.error("saveProgress failed", e);
+    console.error("❌ saveProgress failed", e);
+    alert("Ошибка при сохранении: " + e.message);
   }
 };
 
 // Загружает прогресс пользователя и применяет в окне
 window.loadProgress = async function () {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    console.log("Не авторизован - прогресс не загружается");
+    return;
+  }
   try {
+    console.log("📥 Загружаю прогресс...");
     const d = await getDoc(doc(db, "users", user.uid));
-    if (!d.exists()) return;
+    if (!d.exists()) {
+      console.log("📝 Новый профиль - прогресса нет");
+      return;
+    }
     const data = d.data();
     if (typeof data.kg === "number") window.kg = data.kg;
     if (typeof data.money === "number") window.money = data.money;
@@ -88,18 +117,51 @@ window.loadProgress = async function () {
     if (typeof data.rebirthLevel === "number") window.rebirthLevel = data.rebirthLevel;
     if (typeof data.rebirthCost === "number") window.rebirthCost = data.rebirthCost;
     if (window.updateUI) window.updateUI();
+    console.log("✅ Прогресс загружен!");
   } catch (e) {
-    console.error("loadProgress failed", e);
+    console.error("❌ loadProgress failed", e);
+    alert("Ошибка при загрузке прогресса: " + e.message);
   }
 };
 
 window.logout = async function () {
-  await signOut(auth);
+  try {
+    console.log("👋 Сохраняю прогресс перед выходом...");
+    await window.saveProgress();
+    await signOut(auth);
+    console.log("✅ Вышли из аккаунта");
+  } catch (error) {
+    console.error("Ошибка при выходе:", error);
+  }
 };
 
-// Слушаем изменения состояния аутентификации — загружаем прогресс
-onAuthStateChanged(auth, async (user) => {
+// Функция для обновления UI кнопок авторизации
+function updateAuthUI(user) {
+  const loginBtn = document.getElementById("login-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const userName = document.getElementById("user-name");
+
   if (user) {
+    // Пользователь авторизован
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "block";
+    userName.style.display = "inline";
+    userName.textContent = `👤 ${user.displayName || user.email}`;
+    console.log(`🎮 Авторизован как: ${user.displayName || user.email}`);
+  } else {
+    // Пользователь не авторизован
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+    userName.style.display = "none";
+    console.log("❌ Не авторизован");
+  }
+}
+
+// Слушаем изменения состояния аутентификации — загружаем прогресс и обновляем UI
+onAuthStateChanged(auth, async (user) => {
+  updateAuthUI(user);
+  if (user) {
+    console.log("🔐 Состояние аутентификации изменилось - загружаю прогресс...");
     await window.loadProgress();
   }
 });
