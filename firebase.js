@@ -13,6 +13,11 @@ import {
   doc,
   setDoc,
   getDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  getDocs,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -29,6 +34,10 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
+
+console.log("🔥 Firebase инициализирован");
+console.log("📧 Project ID:", firebaseConfig.projectId);
+console.log("🔐 Auth domain:", firebaseConfig.authDomain);
 
 // ===== ВХОД ЧЕРЕЗ GOOGLE =====
 window.loginWithGoogle = async function () {
@@ -121,6 +130,37 @@ window.loadProgress = async function () {
   } catch (e) {
     console.error("❌ loadProgress failed", e);
     alert("Ошибка при загрузке прогресса: " + e.message);
+  }
+};
+
+// Получает топ 10 пользователей по KG
+window.getLeaderboard = async function () {
+  try {
+    console.log("📊 Загружаю таблицу лидеров...");
+    const q = query(
+      collection(db, "users"),
+      orderBy("kg", "desc"),
+      limit(10)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const leaderboard = [];
+    
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      leaderboard.push({
+        name: data.name || "Аноним",
+        kg: data.kg || 0,
+        rebirthLevel: data.rebirthLevel || 0,
+        money: data.money || 0,
+      });
+    });
+    
+    console.log("✅ Таблица лидеров загружена!", leaderboard);
+    return leaderboard;
+  } catch (e) {
+    console.error("❌ getLeaderboard failed", e);
+    return [];
   }
 };
 
