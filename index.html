@@ -71,9 +71,9 @@
         <span id="textlevel">Текущий уровень: <span id="level">0</span></span>
     </div>
     <div id="lederboard">
-        <h2>Leaderboard</h2>
+        <h2>🏆 Leaderboard (Топ 10)</h2>
         <ol id="leaderboard-list">
-            будет в следующем обновлении :)
+            <li>Загруженн лидеры...</li>
         </ol>
     </div>
      
@@ -81,7 +81,9 @@
    <div id = "footer">project version  beta .2026.02.03</div>
 
 
+    <!-- Загружаем firebase сначала (он инициализирует Firebase) -->
     <script type="module" src="firebase.js"></script>
- <script src="myproject.js"></script>   
+    <!-- Затем загружаем игру (она использует window функции из firebase.js) -->
+    <script type="module" src="myproject.js"></script>
 </body>
 </html>
