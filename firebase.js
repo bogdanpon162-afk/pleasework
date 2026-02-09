@@ -42,18 +42,23 @@ console.log("🔐 Auth domain:", firebaseConfig.authDomain);
 // ===== ВХОД ЧЕРЕЗ GOOGLE =====
 window.loginWithGoogle = async function () {
   try {
+    console.log("🔵 Перенаправляю на Google для авторизации...");
     await signInWithRedirect(auth, provider);
   } catch (error) {
-    console.error("Ошибка при входе:", error);
+    console.error("❌ Ошибка при входе:", error);
     alert("Ошибка при входе: " + error.message);
   }
 };
 
-// Обработка результата редиректа при загрузке страницы
-getRedirectResult(auth)
-  .then(async (result) => {
+// Обработка результата редиректа - вызывется когда пользователь вернётся с Google
+async function handleRedirectResult() {
+  try {
+    console.log("⏳ Проверяю результат редиректа из Google...");
+    const result = await getRedirectResult(auth);
+    
     if (result && result.user) {
       const user = result.user;
+      console.log("✅ Успешно авторизован:", user.email);
       
       // при входе создаём/обновляем профиль без перезаписи прогресса
       await setDoc(
@@ -66,12 +71,21 @@ getRedirectResult(auth)
         { merge: true }
       );
 
-      alert(`Ты вошёл как ${user.displayName}`);
+      alert(`🎉 Ты вошёл как ${user.displayName}`);
+    } else {
+      console.log("ℹ️ Нет результата редиректа (это нормально если вы в первый раз)");
     }
-  })
-  .catch((error) => {
-    console.error("Ошибка при обработке входа:", error);
-  });
+  } catch (error) {
+    console.error("❌ Ошибка при обработке входа:", error);
+  }
+}
+
+// Вызываем проверку редиректа когда DOM готов
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', handleRedirectResult);
+} else {
+  handleRedirectResult();
+}
 
 // Сохраняет прогресс текущего игрока (merge: true)
 window.saveProgress = async function () {
@@ -199,9 +213,15 @@ function updateAuthUI(user) {
 
 // Слушаем изменения состояния аутентификации — загружаем прогресс и обновляем UI
 onAuthStateChanged(auth, async (user) => {
-  updateAuthUI(user);
+  console.log("🔔 onAuthStateChanged сработал");
+  
   if (user) {
-    console.log("🔐 Состояние аутентификации изменилось - загружаю прогресс...");
+    console.log(`✅ Auth State Changed - пользователь авторизован: ${user.email}`);
+    updateAuthUI(user);
+    console.log("📥 Загружаю прогресс...");
     await window.loadProgress();
+  } else {
+    console.log("❌ Auth State Changed - пользователь не авторизован");
+    updateAuthUI(null);
   }
 });
