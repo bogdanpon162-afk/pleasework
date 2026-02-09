@@ -29,7 +29,7 @@ window.updateUI = function() {
 }
 
 // ===== КЛИК ПО КАРТИНКЕ =====
-function onclickbutton() {
+window.onclickbutton = function() {
     let totalClick =
         (window.baseKgPerClick + window.bonusKgPerClick) * window.rebirthMultiplier;
 
