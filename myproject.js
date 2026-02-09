@@ -36,6 +36,13 @@ window.onclickbutton = function() {
     window.kg += totalClick;
     window.updateUI();
     if (window.saveProgress) window.saveProgress();
+
+     if (button) {
+        button.style.transform = "scale(0.95)";
+        setTimeout(() => {
+            button.style.transform = "scale(1)";
+        }, 100);
+    }
 }
 
 // ===== ПРОДАЖА ЖИРА =====
