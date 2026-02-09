@@ -29,16 +29,18 @@ window.updateUI = function() {
 }
 
 // ===== КЛИК ПО КАРТИНКЕ =====
-window.onclickbutton = function() {
+window.onclickbutton = function(btn) {
     let totalClick =
         (window.baseKgPerClick + window.bonusKgPerClick) * window.rebirthMultiplier;
 
     window.kg += totalClick;
     window.updateUI();
     if (window.saveProgress) window.saveProgress();
-
-     if (button) {
-        button.style.transform = "scale(0.95)";
+    
+    // Визуальный эффект - небольшая анимация клика
+    if (btn && btn.style) {
+        btn.style.transform = "scale(0.95)";
+        const button = btn;
         setTimeout(() => {
             button.style.transform = "scale(1)";
         }, 100);
