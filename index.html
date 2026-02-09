@@ -8,7 +8,12 @@
 </head>
 <body>
 
-   <div id = "header">Ilya cliccker! <button onclick="loginWithGoogle()">Войти через Google</button>
+   <div id = "header">Ilya cliccker! 
+   <div id="auth-info">
+      <button id="login-btn" onclick="loginWithGoogle()" style="display: block;">Войти через Google</button>
+      <button id="logout-btn" onclick="logout()" style="display: none;">Выход</button>
+      <span id="user-name" style="display: none; margin-left: 10px;"></span>
+   </div>
 </div>
 
    <div id = "text1">made by QREMB</div>
