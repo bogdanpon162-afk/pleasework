@@ -10,6 +10,8 @@ window.rebirthMultiplier = 1;
 window.rebirthLevel = 0;
 window.rebirthCost = 10000;
 
+console.log("✅ myproject.js загружен - инициализация переменных игры");
+
 // ===== DOM =====
 const kgValue = document.getElementById("kgvalue");
 const moneyValue = document.getElementById("moneyvalue");
@@ -128,6 +130,43 @@ function resetShopButtons() {
 
 // Инициализируем UI при загрузке
 window.updateUI();
+
+console.log("🎮 Игра инициализирована!");
+console.log("💾 Автосохранение каждые 30 секунд:", !!window.saveProgress);
+console.log("📥 Функция загрузки доступна:", !!window.loadProgress);
+
+// ===== ТАБЛИЦА ЛИДЕРОВ =====
+async function updateLeaderboard() {
+  if (!window.getLeaderboard) {
+    console.warn("⚠️ window.getLeaderboard недоступна ещё");
+    return;
+  }
+  
+  const list = document.getElementById("leaderboard-list");
+  if (!list) return;
+  
+  const leaderboard = await window.getLeaderboard();
+  
+  if (leaderboard.length === 0) {
+    list.innerHTML = "<li>Загрузка...</li>";
+    return;
+  }
+  
+  list.innerHTML = leaderboard.map((user, index) => `
+    <li>
+      <strong>#${index + 1}</strong> ${user.name}
+      <br>
+      <small>KG: ${Math.floor(user.kg)} | Rebirth: ${user.rebirthLevel}x | 💰 ${Math.floor(user.money)}</small>
+    </li>
+  `).join("");
+  
+  console.log("📊 Таблица лидеров обновлена");
+}
+
+// Обновляем таблицу лидеров каждые 10 секунд
+setInterval(updateLeaderboard, 10000);
+// Обновляем один раз при загрузке (с задержкой чтобы firebase успел инициализироваться)
+setTimeout(updateLeaderboard, 2000);
 
 // Автоматическое сохранение прогресса каждые 30 секунд
 setInterval(() => {
